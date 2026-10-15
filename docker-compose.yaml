@@ -1,0 +1,12 @@
+services:
+  database:
+    container_name: postgres-container
+    image: postgres:18
+    ports:
+      - "${DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_USER: "${USER_POSTGRES_LOGIN}"
+      POSTGRES_PASSWORD: "${USER_POSTGRES_PASSWORD}"
+    volumes:
+      - ${PATH_TO_PROJECT}/hvi_datas:/var/lib/postgresql
+    restart: always

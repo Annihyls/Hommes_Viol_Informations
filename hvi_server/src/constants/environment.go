@@ -1,0 +1,11 @@
+package cstenv
+
+const DB_HOST                string = "DATABASE_HOST"
+const DB_PORT                string = "DATABASE_PORT"
+const DB_NAME                string = "DATABASE_NAME"
+const USER_POSTGRES_LOGIN    string = "USER_POSTGRES_LOGIN"
+const USER_POSTGRES_PASSWORD string = "USER_POSTGRES_PASSWORD"
+const USER_INTERNAL_LOGIN    string = "USER_INTERNAL_LOGIN"
+const USER_INTERNAL_PASSWORD string = "USER_INTERNAL_PASSWORD"
+const USER_EXTERNAL_LOGIN    string = "USER_EXTERNAL_LOGIN"
+const USER_EXTERNAL_PASSWORD string = "USER_EXTERNAL_PASSWORD"
