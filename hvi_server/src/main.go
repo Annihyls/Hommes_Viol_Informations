@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-        db.Init()
-        db.Close()
+        database.Init()
+        database.Close()
         log.Println("Hello World!")
 }
