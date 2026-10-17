@@ -2,10 +2,10 @@ package database
 
 import (
 	"hvi_server/constants"
+	"hvi_server/utils"
 	"hvi_server/security"
 	"os"
 	"log"
-	"strings"
 )
 
 type UserType int
@@ -16,7 +16,7 @@ const (
 )
 const MAX_USERTYPE = 3
 
-type DBConnectionConfig struct {
+type ConfigDBConnection struct {
 	UserType     UserType
 	DatabaseName string
 	Host         string
@@ -25,13 +25,7 @@ type DBConnectionConfig struct {
 	Password     security.SecureString
 }
 
-var g_configs[MAX_USERTYPE]   DBConnectionConfig
-
-func isStringEmpty(str string) bool {
-        return len(strings.TrimSpace(str)) <= 0
-}
-
-func checkIfConfigIsConform(cfg *DBConnectionConfig) {
+func checkIfConfigIsConform(cfg *ConfigDBConnection) {
         const msg_error string = "is not defined in your environment. Have you setup your .env file ?"
         var user_login_env_name, user_password_env_name string
         switch cfg.UserType {
@@ -45,16 +39,16 @@ func checkIfConfigIsConform(cfg *DBConnectionConfig) {
                 user_login_env_name = cstenv.USER_EXTERNAL_LOGIN
                 user_password_env_name = cstenv.USER_EXTERNAL_PASSWORD
         }
-        if isStringEmpty(cfg.Host) {
+        if utils.IsStringEmpty(cfg.Host) {
                 log.Fatalf("%s %s", cstenv.DB_HOST, msg_error)
         }
-        if isStringEmpty(cfg.Port) {
+        if utils.IsStringEmpty(cfg.Port) {
                 log.Fatalf("%s %s", cstenv.DB_PORT, msg_error)
         }
-        if isStringEmpty(cfg.DatabaseName) {
+        if utils.IsStringEmpty(cfg.DatabaseName) {
                 log.Fatalf("%s %s", cstenv.DB_NAME, msg_error)
         }
-        if isStringEmpty(cfg.Login) {
+        if utils.IsStringEmpty(cfg.Login) {
                 log.Fatalf("%s %s", user_login_env_name, msg_error)
         }
         if security.IsSecureStringEmpty(&cfg.Password) {
@@ -88,8 +82,8 @@ func getPasswordFromUserType(userType UserType) security.SecureString {
         return password
 }
 
-func createConnexionConfigWithUserType(userType UserType) DBConnectionConfig {
-        dbCoCfg := DBConnectionConfig {
+func createConnexionConfigWithUserType(userType UserType) ConfigDBConnection {
+        dbCoCfg := ConfigDBConnection {
                 UserType: userType,
                 Host: os.Getenv(cstenv.DB_HOST),
                 Port: os.Getenv(cstenv.DB_PORT),
@@ -102,11 +96,11 @@ func createConnexionConfigWithUserType(userType UserType) DBConnectionConfig {
 }
 
 func initConfig() {
-	g_configs[EXTERNAL] = createConnexionConfigWithUserType(EXTERNAL)
-        g_configs[INTERNAL] = createConnexionConfigWithUserType(INTERNAL)
-        g_configs[POSTGRES] = createConnexionConfigWithUserType(POSTGRES)
+	g_instances[EXTERNAL].config = createConnexionConfigWithUserType(EXTERNAL)
+        g_instances[INTERNAL].config = createConnexionConfigWithUserType(INTERNAL)
+        g_instances[POSTGRES].config = createConnexionConfigWithUserType(POSTGRES)
 }
 
-func GetConfig(userType UserType) DBConnectionConfig {
-	return g_configs[userType];
+func GetConfig(userType UserType) ConfigDBConnection {
+	return g_instances[userType].config;
 }
