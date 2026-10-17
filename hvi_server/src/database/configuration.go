@@ -1,11 +1,11 @@
 package database
 
 import (
+	"fmt"
 	"hvi_server/constants"
-	"hvi_server/utils"
 	"hvi_server/security"
+	"hvi_server/utils"
 	"os"
-	"log"
 )
 
 type UserType int
@@ -25,35 +25,36 @@ type ConfigDBConnection struct {
 	Password     security.SecureString
 }
 
-func checkIfConfigIsConform(cfg *ConfigDBConnection) {
+func checkConfigConformity(cfg *ConfigDBConnection) error {
         const msg_error string = "is not defined in your environment. Have you setup your .env file ?"
         var user_login_env_name, user_password_env_name string
         switch cfg.UserType {
                 case POSTGRES:
-                user_login_env_name = cstenv.USER_POSTGRES_LOGIN
-                user_password_env_name = cstenv.USER_POSTGRES_PASSWORD
+                        user_login_env_name = cstenv.USER_POSTGRES_LOGIN
+                        user_password_env_name = cstenv.USER_POSTGRES_PASSWORD
                 case INTERNAL:
-                user_login_env_name = cstenv.USER_INTERNAL_LOGIN
-                user_password_env_name = cstenv.USER_INTERNAL_PASSWORD
+                        user_login_env_name = cstenv.USER_INTERNAL_LOGIN
+                        user_password_env_name = cstenv.USER_INTERNAL_PASSWORD
                 default:
-                user_login_env_name = cstenv.USER_EXTERNAL_LOGIN
-                user_password_env_name = cstenv.USER_EXTERNAL_PASSWORD
+                        user_login_env_name = cstenv.USER_EXTERNAL_LOGIN
+                        user_password_env_name = cstenv.USER_EXTERNAL_PASSWORD
         }
         if utils.IsStringEmpty(cfg.Host) {
-                log.Fatalf("%s %s", cstenv.DB_HOST, msg_error)
+                return fmt.Errorf("%s %s", cstenv.DB_HOST, msg_error)
         }
         if utils.IsStringEmpty(cfg.Port) {
-                log.Fatalf("%s %s", cstenv.DB_PORT, msg_error)
+                return fmt.Errorf("%s %s", cstenv.DB_PORT, msg_error)
         }
         if utils.IsStringEmpty(cfg.DatabaseName) {
-                log.Fatalf("%s %s", cstenv.DB_NAME, msg_error)
+                return fmt.Errorf("%s %s", cstenv.DB_NAME, msg_error)
         }
         if utils.IsStringEmpty(cfg.Login) {
-                log.Fatalf("%s %s", user_login_env_name, msg_error)
+                return fmt.Errorf("%s %s", user_login_env_name, msg_error)
         }
         if security.IsSecureStringEmpty(&cfg.Password) {
-                log.Fatalf("%s %s", user_password_env_name, msg_error)
+                return fmt.Errorf("%s %s", user_password_env_name, msg_error)
         }
+        return nil
 }
 
 func getLoginFromUserType(userType UserType) string {
@@ -82,7 +83,7 @@ func getPasswordFromUserType(userType UserType) security.SecureString {
         return password
 }
 
-func createConnexionConfigWithUserType(userType UserType) ConfigDBConnection {
+func createConnexionConfigWithUserType(userType UserType) (*ConfigDBConnection, error) {
         dbCoCfg := ConfigDBConnection {
                 UserType: userType,
                 Host: os.Getenv(cstenv.DB_HOST),
@@ -91,16 +92,32 @@ func createConnexionConfigWithUserType(userType UserType) ConfigDBConnection {
                 Login: getLoginFromUserType(userType),
                 Password: getPasswordFromUserType(userType),
         }
-        checkIfConfigIsConform(&dbCoCfg)
-        return dbCoCfg
+        err := checkConfigConformity(&dbCoCfg)
+        if err != nil {
+                return nil, fmt.Errorf("Database configuration is not conform: %w", err)
+        }
+        return &dbCoCfg, nil
 }
 
-func initConfig() {
-	g_instances[EXTERNAL].config = createConnexionConfigWithUserType(EXTERNAL)
-        g_instances[INTERNAL].config = createConnexionConfigWithUserType(INTERNAL)
-        g_instances[POSTGRES].config = createConnexionConfigWithUserType(POSTGRES)
+func initConfig() error {
+        var err error
+	g_instances[EXTERNAL].config, err = createConnexionConfigWithUserType(EXTERNAL)
+	if err != nil {
+                return fmt.Errorf("External user: %w", err)
+	}
+	
+        g_instances[INTERNAL].config, err = createConnexionConfigWithUserType(INTERNAL)
+        if err != nil {
+                return fmt.Errorf("Internal user: %w", err)
+	}
+	
+        g_instances[POSTGRES].config, err = createConnexionConfigWithUserType(POSTGRES)
+        if err != nil {
+                return fmt.Errorf("Postgres user: %w", err)
+	}
+        return nil
 }
 
-func GetConfig(userType UserType) ConfigDBConnection {
+func GetConfig(userType UserType) *ConfigDBConnection {
 	return g_instances[userType].config;
 }
