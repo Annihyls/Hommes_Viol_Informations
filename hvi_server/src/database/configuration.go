@@ -5,7 +5,6 @@ import (
 	"hvi_server/constants"
 	"hvi_server/security"
 	"hvi_server/utils"
-	"os"
 )
 
 type UserType int
@@ -30,14 +29,14 @@ func checkConfigConformity(cfg *ConfigDBConnection) error {
         var user_login_env_name, user_password_env_name string
         switch cfg.UserType {
                 case POSTGRES:
-                        user_login_env_name = cstenv.USER_POSTGRES_LOGIN
-                        user_password_env_name = cstenv.USER_POSTGRES_PASSWORD
+                        user_login_env_name = string(cstenv.USER_POSTGRES_LOGIN)
+                        user_password_env_name = string(cstenv.USER_POSTGRES_PASSWORD)
                 case INTERNAL:
-                        user_login_env_name = cstenv.USER_INTERNAL_LOGIN
-                        user_password_env_name = cstenv.USER_INTERNAL_PASSWORD
+                        user_login_env_name = string(cstenv.USER_INTERNAL_LOGIN)
+                        user_password_env_name = string(cstenv.USER_INTERNAL_PASSWORD)
                 default:
-                        user_login_env_name = cstenv.USER_EXTERNAL_LOGIN
-                        user_password_env_name = cstenv.USER_EXTERNAL_PASSWORD
+                        user_login_env_name = string(cstenv.USER_EXTERNAL_LOGIN)
+                        user_password_env_name = string(cstenv.USER_EXTERNAL_PASSWORD)
         }
         if utils.IsStringEmpty(cfg.Host) {
                 return fmt.Errorf("%s %s", cstenv.DB_HOST, msg_error)
@@ -61,11 +60,11 @@ func getLoginFromUserType(userType UserType) string {
         var login    string
         switch userType {
                 case POSTGRES:
-                login = os.Getenv(cstenv.USER_POSTGRES_LOGIN)
+                login = cstenv.Getenv(cstenv.USER_POSTGRES_LOGIN)
                 case INTERNAL:
-                login = os.Getenv(cstenv.USER_INTERNAL_LOGIN)
+                login = cstenv.Getenv(cstenv.USER_INTERNAL_LOGIN)
                 default:
-                login = os.Getenv(cstenv.USER_EXTERNAL_LOGIN)
+                login = cstenv.Getenv(cstenv.USER_EXTERNAL_LOGIN)
         }
         return login
 }
@@ -74,11 +73,11 @@ func getPasswordFromUserType(userType UserType) security.SecureString {
         var password security.SecureString
         switch userType {
                 case POSTGRES:
-                password = security.CreateSecureString(os.Getenv(cstenv.USER_POSTGRES_PASSWORD))
+                password = cstenv.Sgetenv(cstenv.USER_POSTGRES_PASSWORD)
                 case INTERNAL:
-                password = security.CreateSecureString(os.Getenv(cstenv.USER_INTERNAL_PASSWORD))
+                password = cstenv.Sgetenv(cstenv.USER_INTERNAL_PASSWORD)
                 default:
-                password = security.CreateSecureString(os.Getenv(cstenv.USER_EXTERNAL_PASSWORD))
+                password = cstenv.Sgetenv(cstenv.USER_EXTERNAL_PASSWORD)
         }
         return password
 }
@@ -86,9 +85,9 @@ func getPasswordFromUserType(userType UserType) security.SecureString {
 func createConnexionConfigWithUserType(userType UserType) (*ConfigDBConnection, error) {
         dbCoCfg := ConfigDBConnection {
                 UserType: userType,
-                Host: os.Getenv(cstenv.DB_HOST),
-                Port: os.Getenv(cstenv.DB_PORT),
-                DatabaseName: os.Getenv(cstenv.DB_NAME),
+                Host: cstenv.Getenv(cstenv.DB_HOST),
+                Port: cstenv.Getenv(cstenv.DB_PORT),
+                DatabaseName: cstenv.Getenv(cstenv.DB_NAME),
                 Login: getLoginFromUserType(userType),
                 Password: getPasswordFromUserType(userType),
         }

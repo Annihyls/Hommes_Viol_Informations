@@ -6,7 +6,6 @@ import (
 	"hvi_server/security"
 	"hvi_server/utils/logger"
 	"time"
-
 	_ "github.com/lib/pq"
 )
 
