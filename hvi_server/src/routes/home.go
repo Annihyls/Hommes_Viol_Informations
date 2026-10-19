@@ -2,18 +2,21 @@ package routes
 
 import (
 	"html/template"
+	"hvi_server/constants"
 	"net/http"
+	"fmt"
 )
 
 func staticFilesInit() {
-	// Serveur pour les fichiers statiques (CSS, JS, images)
-	fileServer := http.FileServer(http.Dir("../static"))
-	http.Handle("/css/", fileServer) // Serve le CSS depuis /css/
+	pathStatic := cstenv.Getenv(cstenv.PATH_STATIC)
+	fileServer := http.FileServer(http.Dir(pathStatic))
+	http.Handle("/css/", fileServer)
 }
 
 func RoutesInit() {
 	staticFilesInit()
-	tmpl := template.Must(template.ParseFiles("../templates/home.html"))
+	homePage := fmt.Sprintf("%s/home.html", cstenv.Getenv(cstenv.PATH_TEMPLATES))
+	tmpl := template.Must(template.ParseFiles(homePage))
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		err := tmpl.Execute(w, nil)
 		if err != nil {

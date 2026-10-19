@@ -17,6 +17,8 @@ const (
         USER_INTERNAL_PASSWORD ConstantEnv = "USER_INTERNAL_PASSWORD"
         USER_EXTERNAL_LOGIN    ConstantEnv = "USER_EXTERNAL_LOGIN"
         USER_EXTERNAL_PASSWORD ConstantEnv = "USER_EXTERNAL_PASSWORD"
+        PATH_STATIC            ConstantEnv = "PATH_STATIC"
+        PATH_TEMPLATES         ConstantEnv = "PATH_TEMPLATES"
 )
 
 func Getenv(constenv ConstantEnv) string {
