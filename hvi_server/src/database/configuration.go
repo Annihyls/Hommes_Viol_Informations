@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"hvi_server/constants"
 	"hvi_server/security"
@@ -8,12 +9,17 @@ import (
 )
 
 type UserType int
+const MAX_USERTYPE = 3
 const (
 	EXTERNAL UserType = iota
 	INTERNAL
         POSTGRES
 )
-const MAX_USERTYPE = 3
+var userTypeName = map[UserType] string {
+        EXTERNAL: "External user",
+        INTERNAL: "Internal user",
+        POSTGRES: "Postgres user",
+}
 
 type ConfigDBConnection struct {
 	UserType     UserType
@@ -99,22 +105,15 @@ func createConnexionConfigWithUserType(userType UserType) (*ConfigDBConnection, 
 }
 
 func initConfig() error {
-        var err error
-	g_instances[EXTERNAL].config, err = createConnexionConfigWithUserType(EXTERNAL)
-	if err != nil {
-                return fmt.Errorf("External user: %w", err)
-	}
-	
-        g_instances[INTERNAL].config, err = createConnexionConfigWithUserType(INTERNAL)
-        if err != nil {
-                return fmt.Errorf("Internal user: %w", err)
-	}
-	
-        g_instances[POSTGRES].config, err = createConnexionConfigWithUserType(POSTGRES)
-        if err != nil {
-                return fmt.Errorf("Postgres user: %w", err)
-	}
-        return nil
+        var errs []error
+        for i := range MAX_USERTYPE {
+                var err error
+                g_instances[i].config, err = createConnexionConfigWithUserType(UserType(i))
+                if err != nil {
+                        errs = append(errs, fmt.Errorf("%s: %w", userTypeName[UserType(i)], err))
+                }
+        }
+        return errors.Join(errs...)
 }
 
 func GetConfig(userType UserType) *ConfigDBConnection {

@@ -2,10 +2,12 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"hvi_server/security"
 	"hvi_server/utils/logger"
 	"time"
+
 	_ "github.com/lib/pq"
 )
 
@@ -31,10 +33,10 @@ func createConnexion(config *ConfigDBConnection) (*sql.DB, error) {
         var err error;
         dbConnection, err = sql.Open("postgres", str_connexion);
         if err != nil {
-                return nil, fmt.Errorf("Fail to open DB connection: %w", err)
+                return nil, fmt.Errorf("Fail to open database connection: %w", err)
         }
         if err := dbConnection.Ping(); err != nil {
-                return nil, fmt.Errorf("Fail to ping DB: %w", err)
+                return nil, fmt.Errorf("Fail to ping database: %w", err)
         }
         dbConnection.SetConnMaxLifetime(time.Minute * 5)
         dbConnection.SetConnMaxIdleTime(time.Minute * 5)
@@ -53,29 +55,18 @@ func initConnection(instance *Instance) error {
 }
 
 func initConnections() error {
-        err := initConnection(&g_instances[POSTGRES])
-        if err != nil {
-                return fmt.Errorf("Postgres user: %w", err)
-        }
-        err = initConnection(&g_instances[INTERNAL])
-        if err != nil {
-                errfatal := closeConnection(&g_instances[POSTGRES])
-                if errfatal != nil {
-                        logger.Stderr.Fatalf("Fail to close connection Postgres: %v", errfatal)
+        for i := range MAX_USERTYPE {
+                err := initConnection(&g_instances[i])
+                if err != nil {
+                        for j := i - 1; i >= 0; j-- {
+                                errfatal := closeConnection(&g_instances[j])
+                                if errfatal != nil {
+                                        logger.Stderr.Fatalf("Fail to close connection for %s: %v", userTypeName[UserType(j)], errfatal)
+                                        
+                                }
+                        }
+                        return fmt.Errorf("%s: %w", userTypeName[UserType(i)], err)
                 }
-                return fmt.Errorf("Internal user: %w", err)
-        }
-        err = initConnection(&g_instances[EXTERNAL])
-        if err != nil {
-                errfatal := closeConnection(&g_instances[POSTGRES])
-                if errfatal != nil {
-                        logger.Stderr.Fatalf("Fail to close connection Postgres: %v", errfatal)
-                }
-                errfatal = closeConnection(&g_instances[INTERNAL])
-                if errfatal != nil {
-                        logger.Stderr.Fatalf("Fail to close connection Internal: %v", errfatal)
-                }
-                return fmt.Errorf("External user: %w", err)
         }
         return nil
 }
@@ -89,17 +80,12 @@ func closeConnection(instance *Instance) error {
 }
 
 func closeConnections() error {
-        err := closeConnection(&g_instances[POSTGRES])
-        if err != nil {
-                return fmt.Errorf("Postgres : %w", err)
+        var errs []error
+        for i := range MAX_USERTYPE {
+                err := closeConnection(&g_instances[i])
+                if err != nil {
+                        errs = append(errs, fmt.Errorf("%s : %w",userTypeName[UserType(i)], err))
+                }
         }
-        err = closeConnection(&g_instances[INTERNAL])
-        if err != nil {
-                return fmt.Errorf("Internal : %w", err)
-        }
-        err = closeConnection(&g_instances[EXTERNAL])
-        if err != nil {
-                return fmt.Errorf("External : %w", err)
-        }
-        return nil
+        return errors.Join(errs...)
 }
