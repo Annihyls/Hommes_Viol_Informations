@@ -14,15 +14,16 @@ validate_variable() {
 }
 
 set -e # stop script when an error occurred
-validate_variable DATABASE_NAME "$DATABASE_NAME"
-validate_variable DATABASE_PORT "$DATABASE_PORT"
 validate_variable USER_POSTGRES_LOGIN "$USER_POSTGRES_LOGIN"
 validate_variable USER_POSTGRES_PASSWORD "$USER_POSTGRES_PASSWORD"
 validate_variable USER_INTERNAL_LOGIN "$USER_INTERNAL_LOGIN"
 validate_variable USER_INTERNAL_PASSWORD "$USER_INTERNAL_PASSWORD"
 validate_variable USER_EXTERNAL_LOGIN "$USER_EXTERNAL_LOGIN"
 validate_variable USER_EXTERNAL_PASSWORD "$USER_EXTERNAL_PASSWORD"
-validate_variable PATH_TO_PROJECT "$PATH_TO_PROJECT"
+
+DATABASE_NAME="hvi_database"
+DATABASE_PORT="5432"
+PATH_TO_PROJECT="$HOME/Projects/homme_viol_infos"
 
 sudo docker rm -f postgres-container
 echo "Container erased"

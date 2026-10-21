@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	config "hvi_server/configserver"
 	"hvi_server/constants"
 	"hvi_server/security"
 	"hvi_server/utils"
@@ -31,7 +32,6 @@ type ConfigDBConnection struct {
 }
 
 func checkConfigConformity(cfg *ConfigDBConnection) error {
-        const msg_error string = "is not defined in your environment. Have you setup your .env file ?"
         var user_login_env_name, user_password_env_name string
         switch cfg.UserType {
                 case POSTGRES:
@@ -43,21 +43,21 @@ func checkConfigConformity(cfg *ConfigDBConnection) error {
                 default:
                         user_login_env_name = string(cstenv.USER_EXTERNAL_LOGIN)
                         user_password_env_name = string(cstenv.USER_EXTERNAL_PASSWORD)
-        }
+        }/*
         if utils.IsStringEmpty(cfg.Host) {
-                return fmt.Errorf("%s %s", cstenv.DB_HOST, msg_error)
+                return fmt.Errorf("%s %s", cstenv.DB_HOST, cstenv.MSG_ERROR)
         }
         if utils.IsStringEmpty(cfg.Port) {
-                return fmt.Errorf("%s %s", cstenv.DB_PORT, msg_error)
+                return fmt.Errorf("%s %s", cstenv.DB_PORT, cstenv.MSG_ERROR)
         }
         if utils.IsStringEmpty(cfg.DatabaseName) {
-                return fmt.Errorf("%s %s", cstenv.DB_NAME, msg_error)
-        }
+                return fmt.Errorf("%s %s", cstenv.DB_NAME, cstenv.MSG_ERROR)
+        }*/
         if utils.IsStringEmpty(cfg.Login) {
-                return fmt.Errorf("%s %s", user_login_env_name, msg_error)
+                return fmt.Errorf("%s %s", user_login_env_name, cstenv.MSG_ERROR)
         }
         if security.IsSecureStringEmpty(&cfg.Password) {
-                return fmt.Errorf("%s %s", user_password_env_name, msg_error)
+                return fmt.Errorf("%s %s", user_password_env_name, cstenv.MSG_ERROR)
         }
         return nil
 }
@@ -91,9 +91,9 @@ func getPasswordFromUserType(userType UserType) security.SecureString {
 func createConnexionConfigWithUserType(userType UserType) (*ConfigDBConnection, error) {
         dbCoCfg := ConfigDBConnection {
                 UserType: userType,
-                Host: cstenv.Getenv(cstenv.DB_HOST),
-                Port: cstenv.Getenv(cstenv.DB_PORT),
-                DatabaseName: cstenv.Getenv(cstenv.DB_NAME),
+                Host: config.Current["DatabaseHost"],
+                Port: config.Current["DatabasePort"],
+                DatabaseName: config.Current["DatabaseName"],
                 Login: getLoginFromUserType(userType),
                 Password: getPasswordFromUserType(userType),
         }
