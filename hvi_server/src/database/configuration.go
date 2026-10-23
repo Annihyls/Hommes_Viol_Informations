@@ -3,7 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
-	config "hvi_server/configserver"
+	"hvi_server/configserver"
 	"hvi_server/constants"
 	"hvi_server/security"
 	"hvi_server/utils"
@@ -43,16 +43,16 @@ func checkConfigConformity(cfg *ConfigDBConnection) error {
                 default:
                         user_login_env_name = string(cstenv.USER_EXTERNAL_LOGIN)
                         user_password_env_name = string(cstenv.USER_EXTERNAL_PASSWORD)
-        }/*
+        }
         if utils.IsStringEmpty(cfg.Host) {
-                return fmt.Errorf("%s %s", cstenv.DB_HOST, cstenv.MSG_ERROR)
+                return fmt.Errorf("Database Ip address is not defined")
         }
         if utils.IsStringEmpty(cfg.Port) {
-                return fmt.Errorf("%s %s", cstenv.DB_PORT, cstenv.MSG_ERROR)
+                return fmt.Errorf("Database port is not defined")
         }
         if utils.IsStringEmpty(cfg.DatabaseName) {
-                return fmt.Errorf("%s %s", cstenv.DB_NAME, cstenv.MSG_ERROR)
-        }*/
+                return fmt.Errorf("Database name is not defined")
+        }
         if utils.IsStringEmpty(cfg.Login) {
                 return fmt.Errorf("%s %s", user_login_env_name, cstenv.MSG_ERROR)
         }
@@ -104,7 +104,7 @@ func createConnexionConfigWithUserType(userType UserType) (*ConfigDBConnection, 
         return &dbCoCfg, nil
 }
 
-func initConfig() error {
+func initDBConfig() error {
         var errs []error
         for i := range MAX_USERTYPE {
                 var err error
@@ -116,6 +116,6 @@ func initConfig() error {
         return errors.Join(errs...)
 }
 
-func GetConfig(userType UserType) *ConfigDBConnection {
+func GetDBConfig(userType UserType) *ConfigDBConnection {
 	return g_instances[userType].config;
 }

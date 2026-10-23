@@ -30,7 +30,7 @@ func Load() error {
 			continue
 		}
 		key, val, ok := strings.Cut(line, "=")
-                if !ok {
+		if !ok {
 			return fmt.Errorf("Invalid line: %q", line)
 		}
 		Current[strings.TrimSpace(key)] = strings.TrimSpace(val)
@@ -38,5 +38,5 @@ func Load() error {
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("Unable to parse file: %w", err)
 	}
-        return nil
+	return nil
 }

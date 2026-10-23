@@ -16,15 +16,15 @@ import (
 func main() {
         logger.Stdout.Println("Server starting boot...")
         if err := config.Load(); err != nil {
-                logger.Stderr.Printf("%v\n", err)
+                panic(err)
         }
-        logger.Stdout.Println("Successfully load config file")
+        logger.Stdout.Println("hvi_server.conf loaded")
         if err := database.Init(); err != nil {
                 panic(err)
         }
-        logger.Stdout.Println("Successfully open all database connections")
+        logger.Stdout.Println("Databases connections opened")
         routes.Init()
-        logger.Stdout.Println("Routes successfully created")
+        logger.Stdout.Println("Routes created")
         srv := &http.Server{
                 Addr: "[::1]:8080",
         }
@@ -32,11 +32,11 @@ func main() {
         go func() {
                 if err := srv.ListenAndServe(); err != nil &&
                         err != http.ErrServerClosed {
-                        logger.Stderr.Printf("%v", err)
+                        logger.Stderr.Printf("%v\n", err)
                         return
                 }
         }()
-        logger.Stdout.Println("Go Server started at: http://[::1]:8080")
+        logger.Stdout.Println("Server started at: http://[::1]:8080")
         
         stop := make(chan os.Signal, 1)
         signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -52,6 +52,6 @@ func main() {
         if err := database.Close(); err != nil {
                 panic(err)
         }
-	logger.Stdout.Println("Successfully close all database connections")
+	logger.Stdout.Println("All database connections closed")
 	logger.Stdout.Println("Server stopped")
 }

@@ -1,8 +1,8 @@
 package security
 
 import (
-        "strings"
         "runtime"
+        "hvi_server/utils"
 )
 
 type SecureString struct {
@@ -10,13 +10,9 @@ type SecureString struct {
         destroyed bool
 }
 
-func isStringEmpty(str string) bool {
-        return len(strings.TrimSpace(str)) <= 0
-}
-
 func CreateSecureString(str string) SecureString {
         var content []byte
-        if isStringEmpty(str) {
+        if utils.IsStringEmpty(str) {
                 content = nil
         } else {
                 content = []byte(str)
@@ -42,7 +38,11 @@ func GetSecureStringContent(sstr *SecureString) []byte {
 }
 
 func DestroySecureString(sstr *SecureString) {
-        if sstr == nil || sstr.destroyed {
+        if sstr == nil {
+                return
+        }
+        if sstr.content == nil {
+                sstr.destroyed = true
                 return
         }
         for i := range sstr.content {

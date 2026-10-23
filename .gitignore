@@ -1,3 +1,4 @@
 .env
 hvi_datas/
 conception/
+hvi_server/coverage-report
