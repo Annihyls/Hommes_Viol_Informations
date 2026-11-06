@@ -3,7 +3,7 @@ package database
 
 import (
 	"fmt"
-	"hvi_server/configserver"
+	"hvi_server/serverconfig"
 )
 
 func Init(serverconf *config.ServerConf) error {

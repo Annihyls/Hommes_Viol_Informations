@@ -1,8 +1,11 @@
 package routes
 
-import "net/http"
+import (
+	"hvi_server/serverconfig"
+	"net/http"
+)
 
-func staticFilesInit() {
-	fileServer := http.FileServer(http.Dir(getStaticDirPath()))
+func staticFilesInit(serverconfig *config.ServerConf) {
+	fileServer := http.FileServer(http.Dir(serverconfig.GetStaticDirPath()))
 	http.Handle("/css/", fileServer)
 }

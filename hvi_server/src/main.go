@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"hvi_server/configserver"
 	"hvi_server/database"
 	"hvi_server/routes"
+	"hvi_server/serverconfig"
 	"hvi_server/utils/logger"
 	"net/http"
 	"os"

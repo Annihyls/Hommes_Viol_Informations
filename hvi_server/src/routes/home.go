@@ -2,12 +2,13 @@ package routes
 
 import (
 	"html/template"
+	"hvi_server/serverconfig"
 	"net/http"
 	"path/filepath"
 )
 
-func setHomePage() {
-	var tmplPath string = filepath.Join(getTemplateDirPath(), "home.html")
+func setHomePage(serverconfig *config.ServerConf) {
+	var tmplPath string = filepath.Join(serverconfig.GetTemplateDirPath(), "home.html")
 	tmpl := template.Must(template.ParseFiles(tmplPath))
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		err := tmpl.Execute(w, nil)

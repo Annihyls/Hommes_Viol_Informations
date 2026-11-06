@@ -3,9 +3,9 @@ package database
 import (
 	"errors"
 	"fmt"
-	"hvi_server/configserver"
 	"hvi_server/constants"
 	"hvi_server/security"
+	"hvi_server/serverconfig"
 	"hvi_server/utils"
 )
 
