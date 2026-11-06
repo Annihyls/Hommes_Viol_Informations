@@ -1,13 +1,9 @@
 package routes
 
-import (
-        "hvi_server/configserver"
-)
-
 func getTemplateDirPath() string {
-        return config.Current["PathToTemplateFiles"]
+	return serverConf.Get("PathToTemplateFiles")
 }
 
 func getStaticDirPath() string {
-        return config.Current["PathToStaticFiles"]
+	return serverConf.Get("PathToStaticFiles")
 }

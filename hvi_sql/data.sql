@@ -6,6 +6,7 @@ INSERT INTO person (
 	id,
 	name,
 	email,
+	salt,
 	password,
 	is_email_verified,
 	date_account_creation,
@@ -15,6 +16,7 @@ INSERT INTO person (
 	'f02b5c6c-4e0f-4b3f-82ce-84ff4ea23aec',
 	'Vincent',
 	'vincent.gimbert@yahoo.fr',
+	'ARajouterALaFin'
 	'a',
 	false,
 	'2026-10-09 13:50:38 CET',
