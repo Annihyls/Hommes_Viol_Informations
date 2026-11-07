@@ -3,11 +3,12 @@ package database
 
 import (
 	"fmt"
+	"hvi_server/environnement"
 	"hvi_server/serverconfig"
 )
 
-func Init(serverconf *config.ServerConf) error {
-	err := initDBConfig(serverconf)
+func Init(serverconf *config.ServerConf, envVar *environnement.EnvVariable) error {
+	err := initDBConfig(serverconf, envVar)
 	if err != nil {
 		return fmt.Errorf("fail to init configuration for: %w", err)
 	}

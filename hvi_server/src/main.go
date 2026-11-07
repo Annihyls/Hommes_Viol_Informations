@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"hvi_server/database"
+	"hvi_server/environnement"
 	"hvi_server/routes"
 	"hvi_server/serverconfig"
 	"hvi_server/utils/logger"
@@ -15,13 +16,20 @@ import (
 
 func main() {
 	logger.Stdout.Println("Server starting boot...")
+	envVar, err := environnement.NewEnvVariable()
+	if err != nil {
+		panic(err)
+	}
+	logger.Stdout.Println("environnement variables retrieved")
 	cfc := config.NewServerConfFile()
-	serverconf, err := config.Load(cfc)
+	serverconf, err := config.Load(cfc, envVar)
 	if err != nil {
 		panic(err)
 	}
 	logger.Stdout.Println("hvi_server.conf loaded")
-	if err := database.Init(serverconf); err != nil {
+
+	err = database.Init(serverconf, envVar)
+	if err != nil {
 		panic(err)
 	}
 	logger.Stdout.Println("Databases connections opened")

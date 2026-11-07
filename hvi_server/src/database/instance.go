@@ -26,8 +26,9 @@ func GetDatabaseConnection(userType UserType) *sql.DB {
 
 func createConnexion(config *ConfigDBConnection) (*sql.DB, error) {
 	strConnection := fmt.Sprintf(ConnectionString,
-		config.Host, config.Port, config.Login,
+		config.Host, config.Port, security.GetSecureStringContent(&config.Login),
 		security.GetSecureStringContent(&config.Password), config.DatabaseName)
+	security.DestroySecureString(&config.Login)
 	security.DestroySecureString(&config.Password)
 	var dbConnection *sql.DB
 	var err error
@@ -61,7 +62,9 @@ func initConnections() error {
 			for j := i - 1; i >= 0; j-- {
 				errfatal := closeConnection(&gInstances[j])
 				if errfatal != nil {
-					logger.Stderr.Fatalf("Fail to close connection for %s: %v", userTypeName[UserType(j)], errfatal)
+					logger.Stderr.Fatalf(
+						"Fail to close connection for %s: %v",
+						userTypeName[UserType(j)], errfatal)
 
 				}
 			}
