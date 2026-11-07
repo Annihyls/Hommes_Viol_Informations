@@ -9,10 +9,6 @@
 ### Build
 First you need to create a .env file that contains this variables :
 ```
-DATABASE_HOST=""
-DATABASE_NAME=""
-DATABASE_PORT=""
-
 # ----- Database user definition ------#
 USER_POSTGRES_LOGIN=""
 USER_POSTGRES_PASSWORD=""
@@ -22,15 +18,11 @@ USER_INTERNAL_PASSWORD=""
 
 USER_EXTERNAL_LOGIN=""
 USER_EXTERNAL_PASSWORD=""
-# ------------------------------------#
 
-# ----- System -----#
-PATH_TO_PROJECT=""
+HVI_SERVER_CONF=""
+# ------------------------------------#
 ```
-Replace "" by your configuration. Like for example : 
-```
-PATH_TO_PROJECT="$HOME/homme_viol_info"
-```
+You replace "" by your wanted configuration.
 
 Then you can execute export_env.sh
 ```
@@ -42,9 +34,13 @@ If it a success, you can execute setup_database.sh
 ./setup_database.sh
 ```
 
-If it also a success, execute :
+If it also a success, execute the following command to start the server:
 ```
-cd hvf_server/src
-go mod tidy
-go run main.go
+cd hvi_server/
+./start_server.sh
+```
+
+And if you want running tests:
+```
+./start_server.sh test
 ```
