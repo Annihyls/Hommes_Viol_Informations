@@ -13,18 +13,12 @@ import (
 
 const ConnectionString string = "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable"
 
-var gInstances [MaxUserType]Instance
-
 type Instance struct {
-	config       *ConfigDBConnection
+	config       ConfigDBConnection
 	dbConnection *sql.DB
 }
 
-func GetDatabaseConnection(userType UserType) *sql.DB {
-	return gInstances[userType].dbConnection
-}
-
-func createConnexion(config *ConfigDBConnection) (*sql.DB, error) {
+func createConnexion(config ConfigDBConnection) (*sql.DB, error) {
 	strConnection := fmt.Sprintf(ConnectionString,
 		config.Host, config.Port, config.Login,
 		security.GetSecureStringContent(&config.Password), config.DatabaseName)
@@ -45,21 +39,25 @@ func createConnexion(config *ConfigDBConnection) (*sql.DB, error) {
 	return dbConnection, nil
 }
 
-func initConnection(instance *Instance) error {
+func newInstance(dbConfig ConfigDBConnection) (Instance, error) {
 	var err error
+	var instance Instance
+	instance.config = dbConfig
 	instance.dbConnection, err = createConnexion(instance.config)
 	if err != nil {
-		return fmt.Errorf("fail to establish connection to database: %w", err)
+		return instance, fmt.Errorf("fail to establish connection to database: %w", err)
 	}
-	return nil
+	return instance, nil
 }
 
-func initConnections() error {
+func initConnections(dbConfigs []ConfigDBConnection) ([]Instance, error) {
+	instances = make([]Instance, 3)
 	for i := range MaxUserType {
-		err := initConnection(&gInstances[i])
+		var err error
+		instances[i], err = newInstance(dbConfigs[i])
 		if err != nil {
 			for j := i - 1; i >= 0; j-- {
-				errfatal := closeConnection(&gInstances[j])
+				errfatal := closeConnection(instances[j])
 				if errfatal != nil {
 					logger.Stderr.Fatalf(
 						"Fail to close connection for %s: %v",
@@ -67,13 +65,13 @@ func initConnections() error {
 
 				}
 			}
-			return fmt.Errorf("%s: %w", userTypeName[UserType(i)], err)
+			return instances, fmt.Errorf("%s: %w", userTypeName[UserType(i)], err)
 		}
 	}
-	return nil
+	return instances, nil
 }
 
-func closeConnection(instance *Instance) error {
+func closeConnection(instance Instance) error {
 	err := instance.dbConnection.Close()
 	if err != nil {
 		return fmt.Errorf("error closing database : %w", err)
@@ -81,10 +79,10 @@ func closeConnection(instance *Instance) error {
 	return nil
 }
 
-func closeConnections() error {
+func closeConnections(instances []Instance) error {
 	var errs []error
 	for i := range MaxUserType {
-		err := closeConnection(&gInstances[i])
+		err := closeConnection(instances[i])
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s : %w", userTypeName[UserType(i)], err))
 		}

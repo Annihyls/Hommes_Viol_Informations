@@ -7,12 +7,14 @@ import (
 	"hvi_server/serverconfig"
 )
 
+var instances []Instance
+
 func Init(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
-	err := initDBConfig(serverconf, envVarMap)
+	dbConfigs, err := initDBConfig(serverconf, envVarMap)
 	if err != nil {
 		return fmt.Errorf("fail to init configuration for: %w", err)
 	}
-	err = initConnections()
+	instances, err = initConnections(dbConfigs)
 	if err != nil {
 		return fmt.Errorf("fail to init connection for: %w", err)
 	}
@@ -20,7 +22,7 @@ func Init(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
 }
 
 func Close() error {
-	err := closeConnections()
+	err := closeConnections(instances)
 	if err != nil {
 		return fmt.Errorf("fail to close: %w", err)
 	}

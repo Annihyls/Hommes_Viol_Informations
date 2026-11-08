@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"fmt"
 	"hvi_server/environnement"
 	"hvi_server/security"
 	"hvi_server/serverconfig"
@@ -49,7 +48,7 @@ func getCredentials(envVarMap *env.VarMap, userType UserType) (string, security.
 	return login, password
 }
 
-func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap *env.VarMap, userType UserType) (*ConfigDBConnection, error) {
+func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap *env.VarMap, userType UserType) ConfigDBConnection {
 	login, password := getCredentials(envVarMap, userType)
 	dbCoCfg := ConfigDBConnection{
 		UserType:     userType,
@@ -59,21 +58,15 @@ func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap 
 		Login:        login,
 		Password:     password,
 	}
-	return &dbCoCfg, nil
+	return dbCoCfg
 }
 
-func initDBConfig(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
+func initDBConfig(serverconf *config.ServerConf, envVarMap *env.VarMap) ([]ConfigDBConnection, error) {
 	var errs []error
+	var dbConfigs []ConfigDBConnection
 	for i := range MaxUserType {
-		var err error
-		gInstances[i].config, err = createConnexionConfigWithUserType(serverconf, envVarMap, UserType(i))
-		if err != nil {
-			errs = append(errs, fmt.Errorf("%s: %w", userTypeName[UserType(i)], err))
-		}
+		dbConfig := createConnexionConfigWithUserType(serverconf, envVarMap, UserType(i))
+		dbConfigs = append(dbConfigs, dbConfig)
 	}
-	return errors.Join(errs...)
-}
-
-func GetDBConfig(userType UserType) *ConfigDBConnection {
-	return gInstances[userType].config
+	return dbConfigs, errors.Join(errs...)
 }
