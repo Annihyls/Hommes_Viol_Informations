@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func setLoginPage(serverconfig *config.ServerConf) {
+func setLoginPage(serverconfig config.ServerConf) {
 	url := "/login"
 	tmplPath := filepath.Join(serverconfig.GetTemplateDirPath(), "login.html")
 	tmpl := template.Must(template.ParseFiles(tmplPath))

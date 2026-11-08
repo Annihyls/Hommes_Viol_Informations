@@ -31,8 +31,8 @@ type VarMap struct {
 	securecontent map[string]security.SecureString
 }
 
-func NewVarMap() (*VarMap, error) {
-	envVar := &VarMap{
+func CreateVarMap() (VarMap, error) {
+	envVarMap := VarMap{
 		content:       make(map[string]string),
 		securecontent: make(map[string]security.SecureString),
 	}
@@ -45,9 +45,9 @@ func NewVarMap() (*VarMap, error) {
 	for _, key := range keyEnv {
 		value := os.Getenv(key)
 		if utils.IsStringEmpty(value) {
-			return nil, fmt.Errorf("%s %s", key, errorMessage)
+			return envVarMap, fmt.Errorf("%s %s", key, errorMessage)
 		}
-		envVar.content[key] = value
+		envVarMap.content[key] = value
 	}
 
 	keyEnvSecure := []string{
@@ -58,17 +58,17 @@ func NewVarMap() (*VarMap, error) {
 	for _, key := range keyEnvSecure {
 		secureValue := security.CreateSecureString(os.Getenv(key))
 		if security.IsSecureStringEmpty(&secureValue) {
-			return nil, fmt.Errorf("%s %s", key, errorMessage)
+			return envVarMap, fmt.Errorf("%s %s", key, errorMessage)
 		}
-		envVar.securecontent[key] = secureValue
+		envVarMap.securecontent[key] = secureValue
 	}
-	return envVar, nil
+	return envVarMap, nil
 }
 
-func (vm *VarMap) Get(key Key) string {
+func (vm VarMap) Get(key Key) string {
 	return vm.content[string(key)]
 }
 
-func (vm *VarMap) SecureGet(key SecureKey) security.SecureString {
+func (vm VarMap) SecureGet(key SecureKey) security.SecureString {
 	return vm.securecontent[string(key)]
 }

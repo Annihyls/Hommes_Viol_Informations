@@ -9,7 +9,7 @@ import (
 
 var instances []Instance
 
-func Init(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
+func Init(serverconf config.ServerConf, envVarMap env.VarMap) error {
 	dbConfigs, err := initDBConfig(serverconf, envVarMap)
 	if err != nil {
 		return fmt.Errorf("fail to init configuration for: %w", err)

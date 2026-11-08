@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	env "hvi_server/environnement"
 	"testing"
 )
 
@@ -10,23 +11,12 @@ func TestWithOpenFileError(t *testing.T) {
 		OpenFile: nil,
 		OpenErr:  errors.New("cannot open file"),
 	}
-	err := Load(m)
+	ev := env.VarMap{}
+	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
 	}
 }
-
-/*
-func TestWithCloseFileError(t *testing.T) {
-	m := &mockConfFile{
-		CloseErr: errors.New("cannot close file"),
-	}
-	err := Load(m)
-	if err == nil {
-		t.Error("must fail")
-	}
-}
-*/
 
 func TestWithReadLineError(t *testing.T) {
 	m := &mockConfFile{
@@ -35,7 +25,8 @@ func TestWithReadLineError(t *testing.T) {
 		ReadLineStr:       []string{""},
 		ReadLineErr:       errors.New("cannot close file"),
 	}
-	err := Load(m)
+	ev := env.VarMap{}
+	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
 	}
@@ -47,7 +38,8 @@ func TestWithParsingError(t *testing.T) {
 		CanReadLineResult: []bool{true},
 		ReadLineStr:       []string{"toto tata"},
 	}
-	err := Load(m)
+	ev := env.VarMap{}
+	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
 	}
@@ -59,7 +51,8 @@ func TestNormalBehavior(t *testing.T) {
 		CanReadLineResult: []bool{true, true, true},
 		ReadLineStr:       []string{"#comment", "", "config = toto"},
 	}
-	err := Load(m)
+	ev := env.VarMap{}
+	_, err := Load(m, ev)
 	if err != nil {
 		t.Error("must not fail")
 	}

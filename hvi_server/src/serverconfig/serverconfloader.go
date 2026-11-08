@@ -13,32 +13,33 @@ type ServerConf struct {
 	content map[string]string
 }
 
-func (c *ServerConf) Get(key string) string {
+func (c ServerConf) Get(key string) string {
 	return c.content[key]
 }
 
-func (c *ServerConf) GetTemplateDirPath() string {
+func (c ServerConf) GetTemplateDirPath() string {
 	return c.content["PathToTemplateFiles"]
 }
 
-func (c *ServerConf) GetStaticDirPath() string {
+func (c ServerConf) GetStaticDirPath() string {
 	return c.content["PathToStaticFiles"]
 }
 
-func Load(cf ConfFile, envVarMap *env.VarMap) (*ServerConf, error) {
+func Load(cf ConfFile, envVarMap env.VarMap) (ServerConf, error) {
+	var serverConf ServerConf
 	confPath := envVarMap.Get(env.HVIServerConfiguration)
 	confFile, err := cf.Open(confPath)
 	if err != nil {
-		return nil, fmt.Errorf("unable to open configuration file: %w", err)
+		return serverConf, fmt.Errorf("unable to open configuration file: %w", err)
 	}
 	defer cf.Close(confFile)
-	configuration := &ServerConf{
+	serverConf = ServerConf{
 		content: make(map[string]string),
 	}
 	for cf.CanReadLine(confFile) {
 		line, err := cf.ReadLine(confFile)
 		if err != nil {
-			return nil, fmt.Errorf("unable to parse file: %w", err)
+			return serverConf, fmt.Errorf("unable to parse file: %w", err)
 		}
 		trimedLine := utils.StringTrimSpace(line)
 		if trimedLine == "" || utils.StringHasPrefix(trimedLine, "#") {
@@ -46,9 +47,9 @@ func Load(cf ConfFile, envVarMap *env.VarMap) (*ServerConf, error) {
 		}
 		key, val, ok := utils.StringCut(trimedLine, "=")
 		if !ok {
-			return nil, fmt.Errorf("invalid line: %q", trimedLine)
+			return serverConf, fmt.Errorf("invalid line: %q", trimedLine)
 		}
-		configuration.content[utils.StringTrimSpace(key)] = utils.StringTrimSpace(val)
+		serverConf.content[utils.StringTrimSpace(key)] = utils.StringTrimSpace(val)
 	}
-	return configuration, nil
+	return serverConf, nil
 }

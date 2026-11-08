@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func setHomePage(serverconfig *config.ServerConf) {
+func setHomePage(serverconfig config.ServerConf) {
 	tmplPath := filepath.Join(serverconfig.GetTemplateDirPath(), "home.html")
 	tmpl := template.Must(template.ParseFiles(tmplPath))
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

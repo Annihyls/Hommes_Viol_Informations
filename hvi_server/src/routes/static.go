@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func staticFilesInit(serverconfig *config.ServerConf) {
+func staticFilesInit(serverconfig config.ServerConf) {
 	fileServer := http.FileServer(http.Dir(serverconfig.GetStaticDirPath()))
 	http.Handle("/css/", fileServer)
 }

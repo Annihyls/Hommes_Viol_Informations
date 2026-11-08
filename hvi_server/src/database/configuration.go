@@ -31,7 +31,7 @@ type ConfigDBConnection struct {
 	Password     security.SecureString
 }
 
-func getCredentials(envVarMap *env.VarMap, userType UserType) (string, security.SecureString) {
+func getCredentials(envVarMap env.VarMap, userType UserType) (string, security.SecureString) {
 	var login string
 	var password security.SecureString
 	switch userType {
@@ -48,7 +48,7 @@ func getCredentials(envVarMap *env.VarMap, userType UserType) (string, security.
 	return login, password
 }
 
-func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap *env.VarMap, userType UserType) ConfigDBConnection {
+func createConnexionConfigWithUserType(serverconf config.ServerConf, envVarMap env.VarMap, userType UserType) ConfigDBConnection {
 	login, password := getCredentials(envVarMap, userType)
 	dbCoCfg := ConfigDBConnection{
 		UserType:     userType,
@@ -61,7 +61,7 @@ func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap 
 	return dbCoCfg
 }
 
-func initDBConfig(serverconf *config.ServerConf, envVarMap *env.VarMap) ([]ConfigDBConnection, error) {
+func initDBConfig(serverconf config.ServerConf, envVarMap env.VarMap) ([]ConfigDBConnection, error) {
 	var errs []error
 	var dbConfigs []ConfigDBConnection
 	for i := range MaxUserType {

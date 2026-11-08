@@ -16,7 +16,7 @@ import (
 
 func main() {
 	logger.Stdout.Println("Server starting boot...")
-	envVarMap, err := env.NewVarMap()
+	envVarMap, err := env.CreateVarMap()
 	if err != nil {
 		panic(err)
 	}
