@@ -1,62 +1,74 @@
-package environnement
+package env
 
 import (
 	"fmt"
 	"hvi_server/security"
+	"hvi_server/utils"
 	"os"
 )
 
-type ConstantEnv string
+type Key string
 
 const (
-	UserPostgresLogin      ConstantEnv = "USER_POSTGRES_LOGIN"
-	UserPostgresPassword   ConstantEnv = "USER_POSTGRES_PASSWORD"
-	UserInternalLogin      ConstantEnv = "USER_INTERNAL_LOGIN"
-	UserInternalPassword   ConstantEnv = "USER_INTERNAL_PASSWORD"
-	UserExternalLogin      ConstantEnv = "USER_EXTERNAL_LOGIN"
-	UserExternalPassword   ConstantEnv = "USER_EXTERNAL_PASSWORD"
-	HVIServerConfiguration ConstantEnv = "HVI_SERVER_CONF"
+	UserPostgresLogin      Key = "USER_POSTGRES_LOGIN"
+	UserInternalLogin      Key = "USER_INTERNAL_LOGIN"
+	UserExternalLogin      Key = "USER_EXTERNAL_LOGIN"
+	HVIServerConfiguration Key = "HVI_SERVER_CONF"
 )
 
-const ErrorMessage = "is not defined in your environment. Have you setup your .env file ?"
+type SecureKey string
 
-/*
-func Getenv(constenv ConstantEnv) string {
-	return os.Getenv(string(constenv))
-}
+const (
+	UserPostgresPassword SecureKey = "USER_POSTGRES_PASSWORD"
+	UserInternalPassword SecureKey = "USER_INTERNAL_PASSWORD"
+	UserExternalPassword SecureKey = "USER_EXTERNAL_PASSWORD"
+)
 
-func Sgetenv(constenv ConstantEnv) security.SecureString {
-	return security.CreateSecureString(os.Getenv(string(constenv)))
-}
-*/
+const errorMessage = "is not defined in your environment. Have you setup your .env file ?"
 
-type EnvVariable struct {
+type VarMap struct {
+	content       map[string]string
 	securecontent map[string]security.SecureString
 }
 
-func NewEnvVariable() (*EnvVariable, error) {
-	envVar := &EnvVariable{
+func NewVarMap() (*VarMap, error) {
+	envVar := &VarMap{
+		content:       make(map[string]string),
 		securecontent: make(map[string]security.SecureString),
 	}
-	sstrEnv := []string{
+	keyEnv := []string{
 		string(UserPostgresLogin),
 		string(UserInternalLogin),
 		string(UserExternalLogin),
 		string(HVIServerConfiguration),
+	}
+	for _, key := range keyEnv {
+		value := os.Getenv(key)
+		if utils.IsStringEmpty(value) {
+			return nil, fmt.Errorf("%s %s", key, errorMessage)
+		}
+		envVar.content[key] = value
+	}
+
+	keyEnvSecure := []string{
 		string(UserPostgresPassword),
 		string(UserInternalPassword),
 		string(UserExternalPassword),
 	}
-	for _, str := range sstrEnv {
-		envSstr := security.CreateSecureString(os.Getenv(str))
-		if security.IsSecureStringEmpty(&envSstr) {
-			return nil, fmt.Errorf("%s %s", str, ErrorMessage)
+	for _, key := range keyEnvSecure {
+		secureValue := security.CreateSecureString(os.Getenv(key))
+		if security.IsSecureStringEmpty(&secureValue) {
+			return nil, fmt.Errorf("%s %s", key, errorMessage)
 		}
-		envVar.securecontent[str] = envSstr
+		envVar.securecontent[key] = secureValue
 	}
 	return envVar, nil
 }
 
-func (ev EnvVariable) Get(constenv ConstantEnv) security.SecureString {
-	return ev.securecontent[string(constenv)]
+func (vm *VarMap) Get(key Key) string {
+	return vm.content[string(key)]
+}
+
+func (vm *VarMap) SecureGet(key SecureKey) security.SecureString {
+	return vm.securecontent[string(key)]
 }

@@ -8,8 +8,8 @@ import (
 )
 
 func setLoginPage(serverconfig *config.ServerConf) {
-	var url string = "/login"
-	var tmplPath string = filepath.Join(serverconfig.GetTemplateDirPath(), "login.html")
+	url := "/login"
+	tmplPath := filepath.Join(serverconfig.GetTemplateDirPath(), "login.html")
 	tmpl := template.Must(template.ParseFiles(tmplPath))
 	http.HandleFunc(url, func(w http.ResponseWriter, req *http.Request) {
 		err := tmpl.Execute(w, nil)

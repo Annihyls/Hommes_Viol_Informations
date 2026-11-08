@@ -7,8 +7,8 @@ import (
 	"hvi_server/serverconfig"
 )
 
-func Init(serverconf *config.ServerConf, envVar *environnement.EnvVariable) error {
-	err := initDBConfig(serverconf, envVar)
+func Init(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
+	err := initDBConfig(serverconf, envVarMap)
 	if err != nil {
 		return fmt.Errorf("fail to init configuration for: %w", err)
 	}

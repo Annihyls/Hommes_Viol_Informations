@@ -6,7 +6,6 @@ package config
 import (
 	"fmt"
 	"hvi_server/environnement"
-	"hvi_server/security"
 	"hvi_server/utils"
 )
 
@@ -26,9 +25,9 @@ func (c *ServerConf) GetStaticDirPath() string {
 	return c.content["PathToStaticFiles"]
 }
 
-func Load(cf ConfFile, envVar *environnement.EnvVariable) (*ServerConf, error) {
-	confPath := envVar.Get(environnement.HVIServerConfiguration)
-	confFile, err := cf.Open(string(security.GetSecureStringContent(&confPath)))
+func Load(cf ConfFile, envVarMap *env.VarMap) (*ServerConf, error) {
+	confPath := envVarMap.Get(env.HVIServerConfiguration)
+	confFile, err := cf.Open(confPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open configuration file: %w", err)
 	}

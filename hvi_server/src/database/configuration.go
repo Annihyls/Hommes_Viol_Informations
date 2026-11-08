@@ -28,29 +28,29 @@ type ConfigDBConnection struct {
 	DatabaseName string
 	Host         string
 	Port         string
-	Login        security.SecureString
+	Login        string
 	Password     security.SecureString
 }
 
-func getCredentials(envVar *environnement.EnvVariable, userType UserType) (security.SecureString, security.SecureString) {
-	var login security.SecureString
+func getCredentials(envVarMap *env.VarMap, userType UserType) (string, security.SecureString) {
+	var login string
 	var password security.SecureString
 	switch userType {
 	case POSTGRES:
-		login = envVar.Get(environnement.UserPostgresLogin)
-		password = envVar.Get(environnement.UserPostgresPassword)
+		login = envVarMap.Get(env.UserPostgresLogin)
+		password = envVarMap.SecureGet(env.UserPostgresPassword)
 	case INTERNAL:
-		login = envVar.Get(environnement.UserInternalLogin)
-		password = envVar.Get(environnement.UserInternalPassword)
+		login = envVarMap.Get(env.UserInternalLogin)
+		password = envVarMap.SecureGet(env.UserInternalPassword)
 	default:
-		login = envVar.Get(environnement.UserExternalLogin)
-		password = envVar.Get(environnement.UserExternalPassword)
+		login = envVarMap.Get(env.UserExternalLogin)
+		password = envVarMap.SecureGet(env.UserExternalPassword)
 	}
 	return login, password
 }
 
-func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVar *environnement.EnvVariable, userType UserType) (*ConfigDBConnection, error) {
-	login, password := getCredentials(envVar, userType)
+func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVarMap *env.VarMap, userType UserType) (*ConfigDBConnection, error) {
+	login, password := getCredentials(envVarMap, userType)
 	dbCoCfg := ConfigDBConnection{
 		UserType:     userType,
 		Host:         serverconf.Get("DatabaseHost"),
@@ -62,11 +62,11 @@ func createConnexionConfigWithUserType(serverconf *config.ServerConf, envVar *en
 	return &dbCoCfg, nil
 }
 
-func initDBConfig(serverconf *config.ServerConf, envVar *environnement.EnvVariable) error {
+func initDBConfig(serverconf *config.ServerConf, envVarMap *env.VarMap) error {
 	var errs []error
 	for i := range MaxUserType {
 		var err error
-		gInstances[i].config, err = createConnexionConfigWithUserType(serverconf, envVar, UserType(i))
+		gInstances[i].config, err = createConnexionConfigWithUserType(serverconf, envVarMap, UserType(i))
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", userTypeName[UserType(i)], err))
 		}

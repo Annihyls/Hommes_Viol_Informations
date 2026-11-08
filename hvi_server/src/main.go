@@ -16,19 +16,19 @@ import (
 
 func main() {
 	logger.Stdout.Println("Server starting boot...")
-	envVar, err := environnement.NewEnvVariable()
+	envVarMap, err := env.NewVarMap()
 	if err != nil {
 		panic(err)
 	}
 	logger.Stdout.Println("environnement variables retrieved")
 	cfc := config.NewServerConfFile()
-	serverconf, err := config.Load(cfc, envVar)
+	serverconf, err := config.Load(cfc, envVarMap)
 	if err != nil {
 		panic(err)
 	}
 	logger.Stdout.Println("hvi_server.conf loaded")
 
-	err = database.Init(serverconf, envVar)
+	err = database.Init(serverconf, envVarMap)
 	if err != nil {
 		panic(err)
 	}
