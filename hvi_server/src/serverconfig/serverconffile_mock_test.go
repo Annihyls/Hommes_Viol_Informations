@@ -1,10 +1,7 @@
 package config
 
-import "os"
-
-type mockConfFile struct {
-	OpenFile *os.File
-	OpenErr  error
+type MockConfFile struct {
+	OpenErr error
 
 	CloseErr error
 
@@ -16,24 +13,24 @@ type mockConfFile struct {
 	ReadLineErr error
 }
 
-func (m *mockConfFile) Open(path string) (*os.File, error) {
-	return m.OpenFile, m.OpenErr
+func (m *MockConfFile) Open(path string) error {
+	return m.OpenErr
 }
 
-func (m *mockConfFile) Close(f *os.File) error {
+func (m *MockConfFile) Close() error {
 	return m.CloseErr
 }
 
-func (m *mockConfFile) CanReadLine(f *os.File) bool {
-	var result bool = false
+func (m *MockConfFile) CanReadLine() bool {
+	result := false
 	if m.ReadLineIteration < len(m.CanReadLineResult) {
 		result = m.CanReadLineResult[m.ReadLineIteration]
 	}
 	return result
 }
 
-func (m *mockConfFile) ReadLine(f *os.File) (string, error) {
-	var result string = ""
+func (m *MockConfFile) ReadLine() (string, error) {
+	result := ""
 	var err error = nil
 	if m.ReadLineIteration < len(m.ReadLineStr) {
 		result, err = m.ReadLineStr[m.ReadLineIteration], m.ReadLineErr

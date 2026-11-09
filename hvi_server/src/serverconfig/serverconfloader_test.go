@@ -7,11 +7,10 @@ import (
 )
 
 func TestWithOpenFileError(t *testing.T) {
-	m := &mockConfFile{
-		OpenFile: nil,
-		OpenErr:  errors.New("cannot open file"),
+	m := &MockConfFile{
+		OpenErr: errors.New("cannot open file"),
 	}
-	ev := env.VarMap{}
+	ev := NewMockVarMap()
 	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
@@ -19,13 +18,13 @@ func TestWithOpenFileError(t *testing.T) {
 }
 
 func TestWithReadLineError(t *testing.T) {
-	m := &mockConfFile{
+	m := &MockConfFile{
 		ReadLineIteration: 0,
 		CanReadLineResult: []bool{true},
 		ReadLineStr:       []string{""},
 		ReadLineErr:       errors.New("cannot close file"),
 	}
-	ev := env.VarMap{}
+	ev := NewMockVarMap()
 	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
@@ -33,12 +32,12 @@ func TestWithReadLineError(t *testing.T) {
 }
 
 func TestWithParsingError(t *testing.T) {
-	m := &mockConfFile{
+	m := &MockConfFile{
 		ReadLineIteration: 0,
 		CanReadLineResult: []bool{true},
 		ReadLineStr:       []string{"toto tata"},
 	}
-	ev := env.VarMap{}
+	ev := NewMockVarMap()
 	_, err := Load(m, ev)
 	if err == nil {
 		t.Error("must fail")
@@ -46,14 +45,30 @@ func TestWithParsingError(t *testing.T) {
 }
 
 func TestNormalBehavior(t *testing.T) {
-	m := &mockConfFile{
+	pathTmpl := "/test/path/templates"
+	pathStic := "/test/path2/static"
+	m := &MockConfFile{
 		ReadLineIteration: 0,
 		CanReadLineResult: []bool{true, true, true},
-		ReadLineStr:       []string{"#comment", "", "config = toto"},
+		ReadLineStr: []string{"#comment",
+			"",
+			"config = toto",
+			string(Templates) + " = " + pathTmpl,
+			string(Static) + " = " + pathStic,
+		},
 	}
-	ev := env.VarMap{}
-	_, err := Load(m, ev)
+	ev := NewMockVarMap()
+	ev.content[string(env.HVIServerConfiguration)] = "toto"
+	config, err := Load(m, ev)
 	if err != nil {
 		t.Error("must not fail")
+	}
+
+	if config.GetTemplateDirPath() == pathTmpl {
+		t.Error("must be equal")
+	}
+
+	if config.GetStaticDirPath() == pathStic {
+		t.Error("must be equal")
 	}
 }

@@ -5,51 +5,76 @@ package config
 
 import (
 	"fmt"
-	"hvi_server/environnement"
-	"hvi_server/utils"
+	env "hvi_server/environnement"
+	"strings"
 )
+
+type Key string
+
+const (
+	DatabaseHost Key = "DatabaseHost"
+	DatabasePort Key = "DatabasePort"
+	DatabaseName Key = "DatabaseName"
+	Templates    Key = "PathToTemplateFiles"
+	Static       Key = "PathToStaticFiles"
+)
+
+type ConfFile interface {
+	Open(path string) error
+	Close() error
+	CanReadLine() bool
+	ReadLine() (string, error)
+}
 
 type ServerConf struct {
 	content map[string]string
 }
 
-func (c ServerConf) Get(key string) string {
-	return c.content[key]
+func (c ServerConf) GetDatabaseHost() string {
+	return c.content[string(DatabaseHost)]
+}
+
+func (c ServerConf) GetDatabasePort() string {
+	return c.content[string(DatabasePort)]
+}
+
+func (c ServerConf) GetDatabaseName() string {
+	return c.content[string(DatabaseName)]
 }
 
 func (c ServerConf) GetTemplateDirPath() string {
-	return c.content["PathToTemplateFiles"]
+	return c.content[string(Templates)]
 }
 
 func (c ServerConf) GetStaticDirPath() string {
-	return c.content["PathToStaticFiles"]
+	return c.content[string(Static)]
 }
 
-func Load(cf ConfFile, envVarMap env.VarMap) (ServerConf, error) {
+func Load(confFile ConfFile, envVariables env.Variables) (ServerConf, error) {
 	var serverConf ServerConf
-	confPath := envVarMap.Get(env.HVIServerConfiguration)
-	confFile, err := cf.Open(confPath)
+	confPath := envVariables.Get(env.HVIServerConfiguration)
+	err := confFile.Open(confPath)
 	if err != nil {
 		return serverConf, fmt.Errorf("unable to open configuration file: %w", err)
 	}
-	defer cf.Close(confFile)
+	defer confFile.Close()
 	serverConf = ServerConf{
 		content: make(map[string]string),
 	}
-	for cf.CanReadLine(confFile) {
-		line, err := cf.ReadLine(confFile)
+	for confFile.CanReadLine() {
+		line, err := confFile.ReadLine()
 		if err != nil {
 			return serverConf, fmt.Errorf("unable to parse file: %w", err)
 		}
-		trimedLine := utils.StringTrimSpace(line)
-		if trimedLine == "" || utils.StringHasPrefix(trimedLine, "#") {
+		trimedLine := strings.TrimSpace(line)
+		if trimedLine == "" || strings.HasPrefix(trimedLine, "#") {
 			continue
 		}
-		key, val, ok := utils.StringCut(trimedLine, "=")
+		key, val, ok := strings.Cut(trimedLine, "=")
 		if !ok {
 			return serverConf, fmt.Errorf("invalid line: %q", trimedLine)
 		}
-		serverConf.content[utils.StringTrimSpace(key)] = utils.StringTrimSpace(val)
+		serverConf.content[strings.TrimSpace(key)] = strings.TrimSpace(val)
 	}
 	return serverConf, nil
 }
