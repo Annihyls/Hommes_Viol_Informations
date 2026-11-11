@@ -45,17 +45,27 @@ func TestWithParsingError(t *testing.T) {
 }
 
 func TestNormalBehavior(t *testing.T) {
+	dbHost := "dbhost"
+	dbPort := "dbport"
+	dbName := "dbname"
 	pathTmpl := "/test/path/templates"
 	pathStic := "/test/path2/static"
+
+	rlStrs := []string{
+		"#comment",
+		"",
+		"config=toto",
+		string(DatabaseHost) + " = " + dbHost,
+		string(DatabasePort) + " = " + dbPort,
+		string(DatabaseName) + " = " + dbName,
+		string(Templates) + "    = " + pathTmpl,
+		string(Static) + "       = " + pathStic,
+	}
+
 	m := &MockConfFile{
 		ReadLineIteration: 0,
 		CanReadLineResult: []bool{true, true, true},
-		ReadLineStr: []string{"#comment",
-			"",
-			"config = toto",
-			string(Templates) + " = " + pathTmpl,
-			string(Static) + " = " + pathStic,
-		},
+		ReadLineStr:       rlStrs,
 	}
 	ev := NewMockVarMap()
 	ev.content[string(env.HVIServerConfiguration)] = "toto"
@@ -64,11 +74,23 @@ func TestNormalBehavior(t *testing.T) {
 		t.Error("must not fail")
 	}
 
+	if config.GetDatabaseHost() == dbHost {
+		t.Errorf("must be equal to %s", dbHost)
+	}
+
+	if config.GetDatabasePort() == dbPort {
+		t.Errorf("must be equal to %s", dbPort)
+	}
+
+	if config.GetDatabaseName() == dbName {
+		t.Errorf("must be equal to %s", dbName)
+	}
+
 	if config.GetTemplateDirPath() == pathTmpl {
-		t.Error("must be equal")
+		t.Errorf("must be equal to %s", pathTmpl)
 	}
 
 	if config.GetStaticDirPath() == pathStic {
-		t.Error("must be equal")
+		t.Errorf("must be equal to %s", pathStic)
 	}
 }

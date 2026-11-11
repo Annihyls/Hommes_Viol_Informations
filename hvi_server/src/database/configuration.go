@@ -22,7 +22,7 @@ var userTypeName = map[UserType]string{
 	POSTGRES: "Postgres user",
 }
 
-type ConfigDBConnection struct {
+type DBConfig struct {
 	UserType     UserType
 	DatabaseName string
 	Host         string
@@ -48,9 +48,9 @@ func getCredentials(envVariables env.Variables, userType UserType) (string, secu
 	return login, password
 }
 
-func createConnexionConfigWithUserType(serverconf config.ServerConf, envVariables env.Variables, userType UserType) ConfigDBConnection {
+func createConnexionConfigWithUserType(serverconf config.ServerConf, envVariables env.Variables, userType UserType) DBConfig {
 	login, password := getCredentials(envVariables, userType)
-	dbCoCfg := ConfigDBConnection{
+	dbCoCfg := DBConfig{
 		UserType:     userType,
 		Host:         serverconf.GetDatabaseHost(),
 		Port:         serverconf.GetDatabasePort(),
@@ -61,9 +61,9 @@ func createConnexionConfigWithUserType(serverconf config.ServerConf, envVariable
 	return dbCoCfg
 }
 
-func initDBConfig(serverconf config.ServerConf, envVariables env.Variables) ([]ConfigDBConnection, error) {
+func initDBConfig(serverconf config.ServerConf, envVariables env.Variables) ([]DBConfig, error) {
 	var errs []error
-	var dbConfigs []ConfigDBConnection
+	var dbConfigs []DBConfig
 	for i := range MaxUserType {
 		dbConfig := createConnexionConfigWithUserType(serverconf, envVariables, UserType(i))
 		dbConfigs = append(dbConfigs, dbConfig)

@@ -28,7 +28,7 @@ func main() {
 	}
 	logger.Stdout.Println("hvi_server.conf loaded")
 
-	err = database.Init(serverconf, envVarMap)
+	instances, err := database.Init(serverconf, envVarMap)
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := database.Close(); err != nil {
+	if err := database.Close(instances); err != nil {
 		panic(err)
 	}
 	logger.Stdout.Println("All database connections closed")
