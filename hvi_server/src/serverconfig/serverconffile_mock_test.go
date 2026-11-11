@@ -7,8 +7,6 @@ type MockConfFile struct {
 
 	ReadLineIteration int
 
-	CanReadLineResult []bool
-
 	ReadLineStr []string
 	ReadLineErr error
 }
@@ -22,11 +20,7 @@ func (m *MockConfFile) Close() error {
 }
 
 func (m *MockConfFile) CanReadLine() bool {
-	result := false
-	if m.ReadLineIteration < len(m.CanReadLineResult) {
-		result = m.CanReadLineResult[m.ReadLineIteration]
-	}
-	return result
+	return m.ReadLineIteration < len(m.ReadLineStr)
 }
 
 func (m *MockConfFile) ReadLine() (string, error) {
