@@ -11,6 +11,15 @@ const (
 	HVIServerConfiguration Key = "HVI_SERVER_CONF"
 )
 
+func getKeys() []Key {
+	return []Key{
+		UserPostgresLogin,
+		UserInternalLogin,
+		UserExternalLogin,
+		HVIServerConfiguration,
+	}
+}
+
 type SecureKey string
 
 const (
@@ -18,6 +27,14 @@ const (
 	UserInternalPassword SecureKey = "USER_INTERNAL_PASSWORD"
 	UserExternalPassword SecureKey = "USER_EXTERNAL_PASSWORD"
 )
+
+func getSecureKeys() []SecureKey {
+	return []SecureKey{
+		UserPostgresPassword,
+		UserInternalPassword,
+		UserExternalPassword,
+	}
+}
 
 const errorMessage = "is not defined in your environment. Have you setup your .env file ?"
 

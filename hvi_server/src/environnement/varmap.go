@@ -17,31 +17,22 @@ func CreateVarMap() (VarMap, error) {
 		content:       make(map[string]string),
 		securecontent: make(map[string]security.SecureString),
 	}
-	keyEnv := []string{
-		string(UserPostgresLogin),
-		string(UserInternalLogin),
-		string(UserExternalLogin),
-		string(HVIServerConfiguration),
-	}
-	for _, key := range keyEnv {
-		value := os.Getenv(key)
+	keys := getKeys()
+	for _, key := range keys {
+		value := os.Getenv(string(key))
 		if len(strings.TrimSpace(value)) == 0 {
 			return envVarMap, fmt.Errorf("%s %s", key, errorMessage)
 		}
-		envVarMap.content[key] = value
+		envVarMap.content[string(key)] = value
 	}
 
-	keyEnvSecure := []string{
-		string(UserPostgresPassword),
-		string(UserInternalPassword),
-		string(UserExternalPassword),
-	}
-	for _, key := range keyEnvSecure {
-		secureValue := security.CreateSecureString(os.Getenv(key))
+	sKeys := getSecureKeys()
+	for _, key := range sKeys {
+		secureValue := security.CreateSecureString(os.Getenv(string(key)))
 		if security.IsSecureStringEmpty(&secureValue) {
 			return envVarMap, fmt.Errorf("%s %s", key, errorMessage)
 		}
-		envVarMap.securecontent[key] = secureValue
+		envVarMap.securecontent[string(key)] = secureValue
 	}
 	return envVarMap, nil
 }
