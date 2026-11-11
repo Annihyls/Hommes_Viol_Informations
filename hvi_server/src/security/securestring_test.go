@@ -95,6 +95,14 @@ func TestGetSecureStringContent(t *testing.T) {
 			t.Error("GetSecureStringContent(&sstring) = []byte; want nil")
 		}
 	})
+
+	t.Run("normal behavior", func(t *testing.T) {
+		sstring := SecureString{content: []byte{'b', 't', 'p'}, destroyed: false}
+		result := GetSecureStringContent(&sstring)
+		if result == nil {
+			t.Error("GetSecureStringContent(&sstring) = nil; want []byte")
+		}
+	})
 }
 
 func TestDestroySecureString(t *testing.T) {
