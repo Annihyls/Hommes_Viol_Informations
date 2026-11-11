@@ -1,4 +1,4 @@
-# Homme Viol Infos
+# Hommes Viol Informations
 
 ## Requirement
 - Golang 1.27.0 or newer
