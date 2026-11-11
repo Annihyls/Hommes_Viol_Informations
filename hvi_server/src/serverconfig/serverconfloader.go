@@ -12,11 +12,11 @@ import (
 type Key string
 
 const (
-	DatabaseHost Key = "DatabaseHost"
-	DatabasePort Key = "DatabasePort"
-	DatabaseName Key = "DatabaseName"
-	Templates    Key = "PathToTemplateFiles"
-	Static       Key = "PathToStaticFiles"
+	DatabaseHost    Key = "DatabaseHost"
+	DatabasePort    Key = "DatabasePort"
+	DatabaseName    Key = "DatabaseName"
+	TemplateDirPath Key = "PathToTemplateFiles"
+	StaticDirPath   Key = "PathToStaticFiles"
 )
 
 type ConfFile interface {
@@ -30,24 +30,8 @@ type ServerConf struct {
 	content map[string]string
 }
 
-func (c ServerConf) GetDatabaseHost() string {
-	return c.content[string(DatabaseHost)]
-}
-
-func (c ServerConf) GetDatabasePort() string {
-	return c.content[string(DatabasePort)]
-}
-
-func (c ServerConf) GetDatabaseName() string {
-	return c.content[string(DatabaseName)]
-}
-
-func (c ServerConf) GetTemplateDirPath() string {
-	return c.content[string(Templates)]
-}
-
-func (c ServerConf) GetStaticDirPath() string {
-	return c.content[string(Static)]
+func (c ServerConf) Get(key Key) string {
+	return c.content[string(key)]
 }
 
 func Load(confFile ConfFile, envVariables env.Variables) (ServerConf, error) {

@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"hvi_server/serverconfig"
+	config "hvi_server/serverconfig"
 	"net/http"
 )
 
 func staticFilesInit(serverconfig config.ServerConf) {
-	fileServer := http.FileServer(http.Dir(serverconfig.GetStaticDirPath()))
+	fileServer := http.FileServer(http.Dir(serverconfig.Get(config.StaticDirPath)))
 	http.Handle("/css/", fileServer)
 }

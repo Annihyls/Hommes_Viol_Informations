@@ -2,9 +2,9 @@ package database
 
 import (
 	"errors"
-	"hvi_server/environnement"
+	env "hvi_server/environnement"
 	"hvi_server/security"
-	"hvi_server/serverconfig"
+	config "hvi_server/serverconfig"
 )
 
 type UserType int
@@ -52,9 +52,9 @@ func createConnexionConfigWithUserType(serverconf config.ServerConf, envVariable
 	login, password := getCredentials(envVariables, userType)
 	dbCoCfg := DBConfig{
 		UserType:     userType,
-		Host:         serverconf.GetDatabaseHost(),
-		Port:         serverconf.GetDatabasePort(),
-		DatabaseName: serverconf.GetDatabaseName(),
+		Host:         serverconf.Get(config.DatabaseHost),
+		Port:         serverconf.Get(config.DatabasePort),
+		DatabaseName: serverconf.Get(config.DatabaseName),
 		Login:        login,
 		Password:     password,
 	}

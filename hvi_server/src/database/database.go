@@ -4,8 +4,8 @@ package database
 import (
 	"errors"
 	"fmt"
-	"hvi_server/environnement"
-	"hvi_server/serverconfig"
+	env "hvi_server/environnement"
+	config "hvi_server/serverconfig"
 	"hvi_server/utils/logger"
 )
 

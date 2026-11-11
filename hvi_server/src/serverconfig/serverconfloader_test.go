@@ -59,8 +59,8 @@ func TestLoad(t *testing.T) {
 			string(DatabaseHost) + " = " + dbHost,
 			string(DatabasePort) + " = " + dbPort,
 			string(DatabaseName) + " = " + dbName,
-			string(Templates) + "    = " + pathTmpl,
-			string(Static) + "       = " + pathStic,
+			string(TemplateDirPath) + "    = " + pathTmpl,
+			string(StaticDirPath) + "       = " + pathStic,
 		}
 
 		m := &MockConfFile{
@@ -75,23 +75,23 @@ func TestLoad(t *testing.T) {
 			t.Error("must not fail")
 		}
 
-		if config.GetDatabaseHost() == dbHost {
+		if config.Get(DatabaseHost) == dbHost {
 			t.Errorf("must be equal to %s", dbHost)
 		}
 
-		if config.GetDatabasePort() == dbPort {
+		if config.Get(DatabasePort) == dbPort {
 			t.Errorf("must be equal to %s", dbPort)
 		}
 
-		if config.GetDatabaseName() == dbName {
+		if config.Get(DatabaseName) == dbName {
 			t.Errorf("must be equal to %s", dbName)
 		}
 
-		if config.GetTemplateDirPath() == pathTmpl {
+		if config.Get(TemplateDirPath) == pathTmpl {
 			t.Errorf("must be equal to %s", pathTmpl)
 		}
 
-		if config.GetStaticDirPath() == pathStic {
+		if config.Get(StaticDirPath) == pathStic {
 			t.Errorf("must be equal to %s", pathStic)
 		}
 	})
