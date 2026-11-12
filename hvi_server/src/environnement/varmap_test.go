@@ -45,7 +45,7 @@ func TestCreateVarMap(t *testing.T) {
 		}
 		_, err := CreateVarMap()
 		if err != nil {
-			t.Error("must not fail")
+			t.Error("must succeed")
 		}
 	})
 }
@@ -68,7 +68,7 @@ func TestVarMapGet(t *testing.T) {
 		}
 		varMap, err := CreateVarMap()
 		if err != nil {
-			t.Error("must not fail")
+			t.Error("must succeed")
 		}
 		for _, key := range getKeys() {
 			if mockEnv[string(key)] != varMap.Get(key) {
@@ -97,7 +97,7 @@ func TestVarMapSecureGet(t *testing.T) {
 		}
 		varMap, err := CreateVarMap()
 		if err != nil {
-			t.Error("must not fail")
+			t.Error("must succeed")
 		}
 		for _, key := range getSecureKeys() {
 			sstr := varMap.SecureGet(key)

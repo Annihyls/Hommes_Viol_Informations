@@ -58,7 +58,7 @@ func TestLoad(t *testing.T) {
 		ev.content[string(env.HVIServerConfiguration)] = "toto"
 		_, err := Load(m, ev)
 		if err != nil {
-			t.Error("must not fail")
+			t.Error("must succeed")
 		}
 	})
 }
@@ -86,7 +86,7 @@ func TestConfigGet(t *testing.T) {
 	ev.content[string(env.HVIServerConfiguration)] = "toto"
 	config, err := Load(m, ev)
 	if err != nil {
-		t.Error("must not fail")
+		t.Error("must succeed")
 	}
 
 	if config.Get(DatabaseHost) != dbHost {
